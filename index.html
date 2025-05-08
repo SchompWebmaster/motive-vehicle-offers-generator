@@ -7,9 +7,20 @@
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
-    /* Additional custom styles if needed */
+    /* Additional custom styles */
     .app-container {
       font-family: Arial, sans-serif;
+    }
+    .gallery-image {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .gallery-image:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    .gallery-image.selected {
+      border: 3px solid #05aad5;
     }
   </style>
 </head>
@@ -17,11 +28,96 @@
   <div id="offers-app" class="app-container"></div>
 
   <script type="text/babel">
-    // Paste the complete React component code here
+    // Image Gallery Component
+    const ImageGallery = ({ onSelectImage, selectedImageUrl }) => {
+      // Sample gallery images - you can replace these with your own
+      const galleryImages = [
+        {
+          url: "https://media.schomp.com/wp-content/uploads/24-ariya3.webp",
+          alt: "Ariya Crossover",
+          id: "img1"
+        },
+        {
+          url: "https://media.schomp.com/wp-content/uploads/2024_nissan_ariya_4dr-suv_platinumplus-e-4orce_fq_oem_1_1600.png",
+          alt: "Ariya Platinum",
+          id: "img2"
+        },
+        {
+          url: "https://media.schomp.com/wp-content/uploads/ARIYA_25.jpg",
+          alt: "Ariya Front View",
+          id: "img3"
+        },
+        {
+          url: "https://media.schomp.com/wp-content/uploads/2024-Nissan-LEAF-1.jpg",
+          alt: "Leaf EV",
+          id: "img4"
+        },
+        {
+          url: "https://media.schomp.com/wp-content/uploads/sentra_25_2.jpg",
+          alt: "Sentra Sedan",
+          id: "img5"
+        },
+        {
+          url: "https://media.schomp.com/wp-content/uploads/2024-nissan-pathfinder-rock-creek.png",
+          alt: "Pathfinder SUV",
+          id: "img6"
+        },
+        {
+          url: "https://media.schomp.com/wp-content/uploads/rouge_25.jpg",
+          alt: "Rogue Crossover",
+          id: "img7"
+        },
+        {
+          url: "https://media.schomp.com/wp-content/uploads/kick_25.jpg",
+          alt: "Kicks Crossover",
+          id: "img8"
+        }
+      ];
+      
+      return (
+        <div className="p-4 bg-white rounded-lg shadow border border-gray-200 mb-6">
+          <h3 className="text-lg font-bold mb-3">Select an Image</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {galleryImages.map((image) => (
+              <div 
+                key={image.id} 
+                className={`gallery-image rounded overflow-hidden ${selectedImageUrl === image.url ? 'selected' : ''}`}
+                onClick={() => onSelectImage(image.url, image.alt)}
+              >
+                <img 
+                  src={image.url} 
+                  alt={image.alt} 
+                  className="w-full h-32 object-cover"
+                />
+                <div className="p-2 text-center text-sm">{image.alt}</div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-4 text-sm text-gray-500">
+            <p>Click an image to use it in your offer.</p>
+            <p className="mt-1">Or enter a custom image URL in the field below.</p>
+          </div>
+        </div>
+      );
+    };
+
+    // Offer Form Component
     const OfferForm = ({ index, offer, updateOffer, removeOffer }) => {
+      const [showGallery, setShowGallery] = React.useState(false);
+      
       const handleChange = (e) => {
         const { name, value } = e.target;
         updateOffer(index, { ...offer, [name]: value });
+      };
+      
+      const selectImageFromGallery = (url, alt) => {
+        updateOffer(index, { 
+          ...offer, 
+          imageUrl: url,
+          imageAlt: alt || offer.imageAlt
+        });
+        setShowGallery(false);
       };
 
       return (
@@ -35,6 +131,34 @@
               Remove
             </button>
           </div>
+          
+          {/* Preview Image */}
+          {offer.imageUrl && (
+            <div className="mb-4 text-center">
+              <img 
+                src={offer.imageUrl} 
+                alt={offer.imageAlt || "Vehicle image"} 
+                className="max-h-48 mx-auto rounded"
+              />
+            </div>
+          )}
+          
+          {/* Gallery Toggle Button */}
+          <button
+            onClick={() => setShowGallery(!showGallery)}
+            style={{ backgroundColor: showGallery ? 'black' : '#05aad5' }}
+            className="hover:opacity-90 text-white px-3 py-2 rounded mb-4 w-full"
+          >
+            {showGallery ? 'Hide Image Gallery' : 'Choose from Image Gallery'}
+          </button>
+          
+          {/* Image Gallery */}
+          {showGallery && (
+            <ImageGallery 
+              onSelectImage={selectImageFromGallery}
+              selectedImageUrl={offer.imageUrl}
+            />
+          )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -124,6 +248,7 @@
       );
     };
 
+    // Main App Component
     const App = () => {
       const [expirationDate, setExpirationDate] = React.useState('03/31/25');
       const [offers, setOffers] = React.useState([
