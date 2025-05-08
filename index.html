@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vehicle Monthly Offers Generator</title>
+  <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    /* Additional custom styles if needed */
+    .app-container {
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="offers-app" class="app-container"></div>
+
+  <script type="text/babel">
+    // Paste the complete React component code here
+    const OfferForm = ({ index, offer, updateOffer, removeOffer }) => {
+      const handleChange = (e) => {
+        const { name, value } = e.target;
+        updateOffer(index, { ...offer, [name]: value });
+      };
+
+      return (
+        <div className="p-6 mb-6 border border-gray-200 rounded-lg bg-white shadow">
+          <div className="flex justify-between mb-4">
+            <h3 className="text-lg font-bold">Offer #{index + 1}</h3>
+            <button 
+              onClick={() => removeOffer(index)} 
+              className="bg-black hover:bg-gray-800 text-white px-3 py-1 rounded"
+            >
+              Remove
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Image URL</label>
+              <input
+                type="text"
+                name="imageUrl"
+                value={offer.imageUrl || ''}
+                onChange={handleChange}
+                placeholder="https://example.com/image.jpg"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-gray-500"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Image Alt Text</label>
+              <input
+                type="text"
+                name="imageAlt"
+                value={offer.imageAlt || ''}
+                onChange={handleChange}
+                placeholder="Image description"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-gray-500"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Vehicle Model</label>
+              <input
+                type="text"
+                name="model"
+                value={offer.model || ''}
+                onChange={handleChange}
+                placeholder="2025 ARIYA EVOLVE+ AWD"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-gray-500"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Monthly Price</label>
+              <input
+                type="text"
+                name="price"
+                value={offer.price || ''}
+                onChange={handleChange}
+                placeholder="227"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-gray-500"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Down Payment Text</label>
+              <input
+                type="text"
+                name="downPaymentText"
+                value={offer.downPaymentText || ''}
+                onChange={handleChange}
+                placeholder="No Down Payment"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-gray-500"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Inventory URL</label>
+              <input
+                type="text"
+                name="inventoryUrl"
+                value={offer.inventoryUrl || ''}
+                onChange={handleChange}
+                placeholder="https://example.com/cars/inventory"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-gray-500"
+              />
+            </div>
+          </div>
+          
+          <div className="mt-4">
+            <label className="block text-sm font-medium mb-1">Disclaimer Text</label>
+            <textarea
+              name="disclaimer"
+              value={offer.disclaimer || ''}
+              onChange={handleChange}
+              placeholder="Enter full disclaimer text here..."
+              className="w-full p-2 border border-gray-300 rounded h-32 focus:outline-none focus:ring-1 focus:ring-gray-500"
+            />
+          </div>
+        </div>
+      );
+    };
+
+    const App = () => {
+      const [expirationDate, setExpirationDate] = React.useState('03/31/25');
+      const [offers, setOffers] = React.useState([
+        {
+          imageUrl: 'https://media.schomp.com/wp-content/uploads/24-ariya3.webp',
+          imageAlt: 'Image of vehicle',
+          model: '2025 ARIYA EVOLVE+ AWD',
+          price: '227',
+          downPaymentText: 'with No Down Payment',
+          disclaimer: 'Lease Offer with no down payment: *2025 Ariya Evolve+ AWD, model code 24514. 36-month lease at $227 per month plus tax at 10,000 miles per year ($0.25 each thereafter.) $695 acquisition fee due as Capitalized Cost reduction at signing. Lease end value $25,662. First payment due at inception. $0 security deposit required. Tax and title not included. Selling price of $48,175. With approved credit. Stk#12N51120 VIN JN8DF0BF4SM764757. MSRP $51,325. Not all customers will qualify. Must qualify for EV Credit and all applicable incentives. Must take delivery from dealer stock. Vehicle may be an incoming unit. Offer ends: 03/31/25 or while supplies last and exclude prior sales.',
+          inventoryUrl: 'https://example.com/cars/inventory'
+        }
+      ]);
+      
+      const [generatedCode, setGeneratedCode] = React.useState('');
+      const [showCodeOutput, setShowCodeOutput] = React.useState(false);
+      
+      const addOffer = () => {
+        setOffers([...offers, {}]);
+      };
+      
+      const updateOffer = (index, updatedOffer) => {
+        const newOffers = [...offers];
+        newOffers[index] = updatedOffer;
+        setOffers(newOffers);
+      };
+      
+      const removeOffer = (index) => {
+        const newOffers = [...offers];
+        newOffers.splice(index, 1);
+        setOffers(newOffers);
+      };
+      
+      const generateHtml = () => {
+        let html = `<head>
+<style>
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 20px auto;        
+        }
+
+        .offer-card {
+            border: var(--border-soft);
+            padding: 16px;
+            margin: 16px;
+            border-radius: 8px;
+            background-color: var(--elevated-level-one);
+            box-shadow: var(--shadow-soft);
+            width: calc(50% - 40px); 
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .offer-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        h2 {
+            font-size: 28px !important; 
+        }
+        details {
+            margin-top: 10px;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--text-primary); 
+        }
+
+        .disclaimer-text {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            background-color: black;
+            border-radius: 4px;
+            font-size: 10px !important; 
+        }
+
+        .cta-button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: var(--mdc-theme-primary);
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .cta-button:hover {
+            background-color: #901622;
+        }
+        @media (max-width: 768px) {
+            .offer-card {
+                width: calc(100% - 40px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">`;
+
+        offers.forEach(offer => {
+          // Skip incomplete offers
+          if (!offer.model) return;
+          
+          html += `
+        <!-- Offer Card -->
+        <div class="offer-card">
+            <img src="${offer.imageUrl || ''}" alt="${offer.imageAlt || 'Vehicle image'}">
+            <h2>${offer.model || ''}</h2>
+            <p><strong>Lease for $${offer.price || '0'}/month</strong>
+                <br>
+                ${offer.downPaymentText || ''}
+                <br>
+            </p>      
+            <details>
+                <summary>View Disclaimer</summary>
+                <p class="disclaimer-text">${offer.disclaimer || ''}</p>
+            </details>
+            <br>
+            <a href="${offer.inventoryUrl || '#'}" class="cta-button">View Inventory</a>
+        </div>`;
+        });
+
+        html += `
+    </div>
+</body>`;
+
+        setGeneratedCode(html);
+        setShowCodeOutput(true);
+      };
+      
+      const copyToClipboard = () => {
+        navigator.clipboard.writeText(generatedCode)
+          .then(() => alert('HTML copied to clipboard!'))
+          .catch(err => console.error('Failed to copy: ', err));
+      };
+      
+      const updateAllDisclaimers = () => {
+        const newOffers = offers.map(offer => {
+          if (offer.disclaimer) {
+            // Replace all instances of the old expiration date with the new one
+            const updatedDisclaimer = offer.disclaimer.replace(/\d{2}\/\d{2}\/\d{2}/g, expirationDate);
+            return { ...offer, disclaimer: updatedDisclaimer };
+          }
+          return offer;
+        });
+        
+        setOffers(newOffers);
+      };
+
+      return (
+        <div className="max-w-6xl mx-auto p-4">
+          <div className="mb-8 text-center bg-black p-6 rounded-lg shadow">
+            <h1 className="text-3xl font-bold mb-2 text-white">Vehicle Monthly Offers Generator</h1>
+            <p className="text-gray-300">Create and manage your monthly vehicle offers with this easy-to-use tool</p>
+          </div>
+          
+          <div className="mb-6 bg-white p-6 rounded-lg shadow border border-gray-200">
+            <h2 className="text-xl font-bold mb-4">Global Settings</h2>
+            <div className="flex flex-col md:flex-row gap-4 items-end">
+              <div className="flex-grow">
+                <label className="block text-sm font-medium mb-1">Expiration Date (MM/DD/YY)</label>
+                <input
+                  type="text"
+                  value={expirationDate}
+                  onChange={(e) => setExpirationDate(e.target.value)}
+                  placeholder="03/31/25"
+                  className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-gray-500"
+                />
+              </div>
+              <button 
+                onClick={updateAllDisclaimers}
+                className="bg-black hover:opacity-90 text-white px-4 py-2 rounded"
+              >
+                Update All Disclaimers
+              </button>
+            </div>
+          </div>
+          
+          <div className="mb-6">
+            <h2 className="text-xl font-bold mb-4">Manage Offers</h2>
+            {offers.map((offer, index) => (
+              <OfferForm
+                key={index}
+                index={index}
+                offer={offer}
+                updateOffer={updateOffer}
+                removeOffer={removeOffer}
+              />
+            ))}
+            
+            <button 
+              onClick={addOffer}
+              style={{ backgroundColor: '#05aad5' }}
+              className="hover:opacity-90 text-white px-4 py-3 rounded w-full font-medium"
+            >
+              + Add New Offer
+            </button>
+          </div>
+          
+          <div className="mb-6">
+            <button 
+              onClick={generateHtml}
+              className="bg-black hover:opacity-90 text-white px-6 py-3 rounded text-lg w-full font-medium"
+            >
+              Generate HTML Code
+            </button>
+          </div>
+          
+          {showCodeOutput && (
+            <div className="mb-6 bg-black p-4 rounded-lg shadow">
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="text-xl font-bold text-white">Generated HTML</h2>
+                <button 
+                  onClick={copyToClipboard}
+                  style={{ backgroundColor: '#05aad5' }}
+                  className="hover:opacity-90 text-white px-3 py-1 rounded"
+                >
+                  Copy to Clipboard
+                </button>
+              </div>
+              <div className="bg-black p-3 rounded overflow-auto max-h-96">
+                <pre className="text-white text-sm whitespace-pre-wrap">
+                  {generatedCode}
+                </pre>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    ReactDOM.render(<App />, document.getElementById('offers-app'));
+  </script>
+</body>
+</html>
